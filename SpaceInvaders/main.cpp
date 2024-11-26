@@ -1,7 +1,9 @@
-﻿#include <iostream>
+
+#include <iostream>
 #include <conio.h>
 #include <time.h>
 #include <stdlib.h>
+#include <windows.h>
 
 using namespace std;
 
@@ -152,7 +154,8 @@ clock_t previousClock;
 clock_t currentClock;
 int main()
 {
-    Player player;
+    system("");
+	Player player;
     eShip eShips[7];
 
     drawPlayField();
