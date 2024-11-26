@@ -3,6 +3,8 @@
 #include <time.h>
 using namespace std;
 
+short bottom = 24;
+
 void moveCsr(short row, short col) { // https://en.wikipedia.org/wiki/ANSI_escape_code
     char code[] = "e[000;000H";
     code[0] = 27;
@@ -20,8 +22,8 @@ void moveCsr(short row, short col) { // https://en.wikipedia.org/wiki/ANSI_escap
 
 void setForColor(int inp) { // inp - https://en.wikipedia.org/wiki/ANSI_escape_code#8-bit
     inp = inp + 30;
-    char code[] = "\e[30m";
-
+    char code[] = "e[30m";
+    code[0] = 27;
     code[2] = 48 + (inp / 10);
     code[3] = 48 + (inp % 10);
 
@@ -45,75 +47,61 @@ void drawPlayField() {
     }
 }
 
-int x = 50;
-int y = 20;
-int inp = 0;
 //77 - right
 //75 - left
+//72 - up
+//80 - down
+
+class Player {
+public: short position = 0;
+
+public:
+    void moveRight() {
+
+    }
+
+    void draw(int pos) {
+        moveCsr(bottom - 2, position - 4);
+        cout << "       ";
+        moveCsr(bottom - 2, pos - 1);
+        cout << "_";
+
+        moveCsr(bottom - 1, position - 4);
+        cout << "       ";
+        moveCsr(bottom - 1, pos - 3);
+        cout << "_/ \\_";
+
+        moveCsr(bottom, position - 4);
+        cout << "       ";
+        moveCsr(bottom, pos - 4);
+        cout << "|__X__|";
+
+        position = pos;
+    }
+
+};
+
+int inp;
 
 int main()
 {
+    Player player;
 
     drawPlayField();
-    moveCsr(y, x);
-    cout << "X";
+    player.draw(40);
     
     while (1) {
         inp = _getch();
         if (inp == 77) {
-            moveCsr(y, x);
-            cout << " ";
 
-            if (x < 79) {
-                x++;
-                moveCsr(y, x);
-                cout << "X";
-            }
-            else {
-                moveCsr(y, x);
-                cout << "X";
+            if (player.position < 77) {
+                player.draw(player.position + 1);
             }
         }
         else if (inp == 75) {
-            moveCsr(y, x);
-            cout << " ";
 
-            if (x > 2) {
-                x--;
-                moveCsr(y, x);
-                cout << "X";
-            }
-            else {
-                moveCsr(y, x);
-                cout << "X";
-            }
-        }
-        else if (inp == 80) {
-            moveCsr(y, x);
-            cout << " ";
-
-            if (y < 24) {
-                y++;
-                moveCsr(y, x);
-                cout << "X";
-            }
-            else {
-                moveCsr(y, x);
-                cout << "X";
-            }
-        }
-        else if (inp == 72) {
-            moveCsr(y, x);
-            cout << " ";
-
-            if (y > 2) {
-                y--;
-                moveCsr(y, x);
-                cout << "X";
-            }
-            else {
-                moveCsr(y, x);
-                cout << "X";
+            if (player.position > 6) {
+                player.draw(player.position - 1);
             }
         }
         
