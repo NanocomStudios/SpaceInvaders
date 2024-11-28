@@ -4,6 +4,7 @@
 #include <time.h>
 #include <stdlib.h>
 #include <windows.h>
+#include <vector>
 
 using namespace std;
 
@@ -60,16 +61,48 @@ class Bullet {
 public:
     short x;
     short y;
+    
+    short state = 0;
+    clock_t previousClock;
 
-    clock_t lastClock;
+    void draw(short xIn, short yIn) {
+        x = xIn;
+        y = yIn;
 
-    Bullet() {
-        lastClock = clock();
+        moveCsr(y,x - 1);
+        cout << "*";
+
+        previousClock = clock();
     }
+    bool animate(int id) {
+        if (state == 0) {
+            moveCsr(y, x - 1);
+            cout << " ";
+
+            moveCsr(y - 1, x - 1);
+            cout << "*";
+            y = y - 1;
+
+            if (y == 2) {
+                moveCsr(y, x - 1);
+                cout << " ";
+                state = 1;
+                return true;
+            }
+            else {
+                return false;
+            }
+        }
+    }
+
 };
 
+vector <Bullet> bullets;
+
 class Player {
-public: short position = 0;
+public: 
+    short position = 0;
+    
 
 public:
     void moveRight() {
@@ -104,25 +137,27 @@ public:
     short health = 1;
     short state = 0;
 
+    Bullet bullet;
+
     void draw(short newX, short newY) {
         moveCsr(x - 1, y - 3);
         cout << "       ";
-        moveCsr(newX - 1 , newY - 3);
+        moveCsr(newX - 1, newY - 3);
         cout << "\\=====/";
 
-        moveCsr(x , y - 3);
+        moveCsr(x, y - 3);
         cout << "       ";
-        moveCsr(newX , newY - 2);
+        moveCsr(newX, newY - 2);
         cout << "\\ X /";
 
-        moveCsr(x +1, y - 3);
+        moveCsr(x + 1, y - 3);
         cout << "       ";
-        moveCsr(newX +1, newY - 1);
+        moveCsr(newX + 1, newY - 1);
         cout << "\\ /";
 
-        moveCsr(x +2, y - 3);
+        moveCsr(x + 2, y - 3);
         cout << "       ";
-        moveCsr(newX +2, newY);
+        moveCsr(newX + 2, newY);
         cout << ".";
 
         x = newX;
@@ -162,10 +197,9 @@ public:
 };
 
 int inp;
-clock_t previousClock;
-clock_t currentClock;
 int main()
 {
+    
     system("cls");
 	Player player;
     eShip eShips[7];
@@ -180,7 +214,8 @@ int main()
     int destroyShip = 0;
     int selectedShip = 0;
 
-    previousClock = clock();
+    clock_t previousClock = clock();
+    clock_t currentClock = clock();
 
     while (1) {
         if (_kbhit()) {
@@ -199,36 +234,31 @@ int main()
                 }
             }
             else if (inp == 32) {
-                short count = 0;
-                while (1) {
-                    selectedShip = rand() % 7;
-                    if (eShips[selectedShip].state == 0) {
-                        break;
+                bool okToFire = true;
+                for (Bullet b : bullets) {
+                    if ((b.x == player.position) && (b.y == (bottom - 3))) {
+                        okToFire = false;
                     }
                 }
-                destroyShip = 1;
+
+                if (okToFire) {
+                    Bullet b;
+                    b.draw(player.position, bottom - 3);
+                    bullets.push_back(b);
+                }
 
             }
+
         }
 
         currentClock = clock();
-
-        if ((currentClock - previousClock) > 300) {
-            if (destroyShip == 1) {
-                
-                if (eShips[selectedShip].state == 0) {
-                    eShips[selectedShip].destroy();
-                }
-                else {
-                    for (int i = 0; i < 7; i++) {
-                        if (eShips[i].state == 1) {
-                            eShips[i].remove();
-                        }
-                    }
+        if ((currentClock - previousClock) > 10) {
+            for (int i = 0; i < bullets.size(); i++) {
+                if (bullets[i].animate(i)) {
+                    bullets.erase(bullets.begin() + i);
                 }
             }
             previousClock = currentClock;
         }
-
     }
 }
