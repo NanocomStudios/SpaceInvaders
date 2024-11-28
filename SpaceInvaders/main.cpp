@@ -56,6 +56,18 @@ void drawPlayField() {
 //72 - up
 //80 - down
 
+class Bullet {
+public:
+    short x;
+    short y;
+
+    clock_t lastClock;
+
+    Bullet() {
+        lastClock = clock();
+    }
+};
+
 class Player {
 public: short position = 0;
 
@@ -89,7 +101,7 @@ class eShip {
 public:
     short x = 10;
     short y = 90;
-
+    short health = 1;
     short state = 0;
 
     void draw(short newX, short newY) {
@@ -119,16 +131,16 @@ public:
 
     void destroy() {
         moveCsr(x - 1, y - 3);
-        cout << "\\88888/";
+        cout << "\\*****/";
 
         moveCsr(x, y - 3);
-        cout << "8\\888/8";
+        cout << "*\\***/*";
 
         moveCsr(x + 1, y - 3);
-        cout << "88\\X/88";
+        cout << "**\\X/**";
 
         moveCsr(x + 2, y - 3);
-        cout << " 8 8 8 ";
+        cout << " * * * ";
         state = 1;
     }
 
@@ -154,7 +166,7 @@ clock_t previousClock;
 clock_t currentClock;
 int main()
 {
-    system("");
+    system("cls");
 	Player player;
     eShip eShips[7];
 
