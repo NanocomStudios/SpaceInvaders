@@ -1,10 +1,13 @@
 
 #include <iostream>
-#include <conio.h>
 #include <time.h>
 #include <stdlib.h>
 #include <windows.h>
 #include <vector>
+
+#define PlayerFireRate 100
+#define PlayerMoveSpeed 20
+
 using namespace std;
 
 short bottom = 24;
@@ -35,6 +38,16 @@ void setForColor(int inp) { // inp - https://en.wikipedia.org/wiki/ANSI_escape_c
     code[3] = 48 + (inp % 10);
 
     printf("%s", code);
+}
+
+void setCursor(bool state) {
+    char code[] = "e[?25l";
+    code[0] = 27;
+
+    if (state) {
+        code[5] = 'h';
+    }
+    cout << code;
 }
 
 void drawPlayField() {
@@ -327,13 +340,13 @@ vector <eStation> eStations;
 
 bool bulletCollision(short id) {
     for (int i = 0; i < eShips.size(); i++) {
-        if (eShips[i].canCollide(bullets[id].x, bullets[id].y)) {
+        if ((eShips[i].canCollide(bullets[id].x, bullets[id].y)) && (eShips[i].state == 0)) {
             eShips[i].health -= bullets[id].damage;
             return true;
         }
     }
     for (int i = 0; i < eStations.size(); i++) {
-        if (eStations[i].canCollide(bullets[id].x, bullets[id].y)) {
+        if ((eStations[i].canCollide(bullets[id].x, bullets[id].y)) && (eStations[i].state == 0)) {
             eStations[i].health -= bullets[id].damage;
             return true;
         }
@@ -351,6 +364,8 @@ int main()
     drawPlayField();
     player.draw(40);
     
+    setCursor(false);
+
     for (int i = 0; i < 7; i++) {
         eShip e;
         e.draw(10 + (i * 10) , 10);
@@ -366,41 +381,51 @@ int main()
 
     clock_t previousClock = clock();
     clock_t currentClock = clock();
+    clock_t bulletClock = clock();
+    clock_t playerClock = clock();
 
     while (1) {
-        if (_kbhit()) {
-            inp = _getch();
-
-            if (inp == 77) {
-
+        
+        if ((GetKeyState(0x27) == (-128)) || (GetKeyState(0x27) == (-127))) {
+            if ((clock() - playerClock) > PlayerMoveSpeed) {
                 if (player.position < 77) {
                     player.draw(player.position + 1);
                 }
+                playerClock = clock();
             }
-            else if (inp == 75) {
+        }
+        if ((GetKeyState(0x25) == (-128)) || (GetKeyState(0x25) == (-127))) {
 
+            if ((clock() - playerClock) > PlayerMoveSpeed) {
                 if (player.position > 6) {
                     player.draw(player.position - 1);
                 }
+                playerClock = clock();
             }
-            else if (inp == 32) {
-                bool okToFire = true;
-                for (Bullet b : bullets) {
-                    if ((b.x == player.position) && (b.y == (bottom - 3))) {
-                        okToFire = false;
-                    }
-                }
+        }
+        if ((GetKeyState(0x20) == (-128)) || (GetKeyState(0x20) == (-127))) {
+            bool okToFire = false;
 
-                if (okToFire) {
-                    Bullet b;
-                    b.draw(player.position, bottom - 3);
-                    bullets.push_back(b);
-                }
+            if ((clock() - bulletClock) > PlayerFireRate) {
+                okToFire = true;
+                bulletClock = clock();
+            }
 
+            for (Bullet b : bullets) {
+                if ((b.x == player.position) && (b.y == (bottom - 3))) {
+                    okToFire = false;
+                }
+            }
+
+            if (okToFire) {
+                Bullet b;
+                b.draw(player.position, bottom - 3);
+                bullets.push_back(b);
             }
 
         }
-
+        
+        
         currentClock = clock();
         if ((currentClock - previousClock) > 10) {
             for (int i = 0; i < bullets.size(); i++) {
@@ -435,7 +460,16 @@ int main()
                 eStations[i].animate();
             }
 
+            for (int i = 0; i < bullets.size(); i++) {
+                if (bullets[i].state == 1) {
+                    bullets.erase(bullets.begin() + i);
+                }
+            }
+
             previousClock = currentClock;
         }
+    }
+    while (0) {
+        cout << GetKeyState(0x25) << endl;
     }
 }
