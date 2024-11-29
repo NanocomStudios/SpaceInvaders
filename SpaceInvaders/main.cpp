@@ -5,10 +5,12 @@
 #include <stdlib.h>
 #include <windows.h>
 #include <vector>
-
 using namespace std;
 
 short bottom = 24;
+const short shipCount = 7;
+
+bool bulletCollision(short id);
 
 void moveCsr(short row, short col) { // https://en.wikipedia.org/wiki/ANSI_escape_code
     char code[] = "e[000;000H";
@@ -61,7 +63,7 @@ class Bullet {
 public:
     short x;
     short y;
-    
+    short damage = 1;
     short state = 0;
     clock_t previousClock;
 
@@ -75,7 +77,11 @@ public:
         previousClock = clock();
     }
     bool animate(int id) {
+        if (bulletCollision(id)) {
+            state = 1;
+        }
         if (state == 0) {
+
             moveCsr(y, x - 1);
             cout << " ";
 
@@ -132,32 +138,26 @@ public:
 
 class eShip {
 public:
-    short x = 10;
-    short y = 90;
+    short x = 90;
+    short y = 10;
     short health = 1;
     short state = 0;
+
+    clock_t previousClock = clock();
 
     Bullet bullet;
 
     void draw(short newX, short newY) {
-        moveCsr(x - 1, y - 3);
-        cout << "       ";
-        moveCsr(newX - 1, newY - 3);
+        moveCsr(newY - 1, newX - 3);
         cout << "\\=====/";
 
-        moveCsr(x, y - 3);
-        cout << "       ";
-        moveCsr(newX, newY - 2);
+        moveCsr(newY, newX - 2);
         cout << "\\ X /";
 
-        moveCsr(x + 1, y - 3);
-        cout << "       ";
-        moveCsr(newX + 1, newY - 1);
+        moveCsr(newY + 1, newX - 1);
         cout << "\\ /";
 
-        moveCsr(x + 2, y - 3);
-        cout << "       ";
-        moveCsr(newX + 2, newY);
+        moveCsr(newY + 2, newX);
         cout << ".";
 
         x = newX;
@@ -165,50 +165,94 @@ public:
     }
 
     void destroy() {
-        moveCsr(x - 1, y - 3);
+        moveCsr(y - 1, x - 3);
         cout << "\\*****/";
 
-        moveCsr(x, y - 3);
+        moveCsr(y, x - 3);
         cout << "*\\***/*";
 
-        moveCsr(x + 1, y - 3);
+        moveCsr(y + 1, x - 3);
         cout << "**\\X/**";
 
-        moveCsr(x + 2, y - 3);
+        moveCsr(y + 2, x - 3);
         cout << " * * * ";
-        state = 1;
     }
 
     void remove() {
-        moveCsr(x - 1, y - 3);
+        moveCsr(y - 1, x - 3);
         cout << "       ";
 
-        moveCsr(x, y - 3);
+        moveCsr(y, x - 3);
         cout << "       ";
 
-        moveCsr(x + 1, y - 3);
+        moveCsr(y + 1, x - 3);
         cout << "       ";
 
-        moveCsr(x + 2, y - 3);
+        moveCsr(y + 2, x - 3);
         cout << "       ";
-        state = 2;
+    }
+
+    bool canCollide(short xIn, short yIn) {
+        switch (yIn - y) {
+        case -1:
+            return (((xIn - x) >= -3) && ((xIn - x) <= 3));
+            break;
+        case 0:
+            return (((xIn - x) >= -2) && ((xIn - x) <= 2));
+            break;
+        case 1:
+            return (((xIn - x) >= -1) && ((xIn - x) <= 1));
+            break;
+        case 2:
+            return (xIn == x);
+            break;
+        }
+        return false;
+    }
+
+    void animate() {
+        clock_t currentClock = clock();
+        if ((currentClock - previousClock) > 300) {
+            if (health <= 0) {
+                if (state == 0) {
+                    destroy();
+                    state = 1;
+                }
+                else if (state == 1) {
+                    remove();
+                    state = 2;
+                }
+            }
+            previousClock = currentClock;
+        }
     }
 
 };
+
+eShip eShips[7];
+
+bool bulletCollision(short id) {
+    for (int i = 0; i < shipCount; i++) {
+        if (eShips[i].canCollide(bullets[id].x, bullets[id].y)) {
+            eShips[i].health -= bullets[id].damage;
+            return true;
+        }
+    }
+    return false;
+}
 
 int inp;
 int main()
 {
     
     system("cls");
-	Player player;
-    eShip eShips[7];
+    Player player;
 
     drawPlayField();
     player.draw(40);
 
     for (int i = 0; i < 7; i++) {
-        eShips[i].draw(10, 10 + (i * 10));
+        eShips[i].draw(10 + (i * 10) , 10);
     }
 
     int destroyShip = 0;
@@ -257,7 +301,19 @@ int main()
                 if (bullets[i].animate(i)) {
                     bullets.erase(bullets.begin() + i);
                 }
+                else {
+                    for (int j = 0; j < shipCount; j++) {
+                        if (eShips[j].canCollide(bullets[i].x, bullets[i].y)) {
+
+                        }
+                    }
+                }
             }
+
+            for (int i = 0; i < 7; i++) {
+                eShips[i].animate();
+            }
+
             previousClock = currentClock;
         }
     }
