@@ -80,10 +80,11 @@ public:
         if (bulletCollision(id)) {
             state = 1;
         }
-        if (state == 0) {
 
-            moveCsr(y, x - 1);
-            cout << " ";
+        moveCsr(y, x - 1);
+        cout << " ";
+
+        if (state == 0) {
 
             moveCsr(y - 1, x - 1);
             cout << "*";
@@ -148,17 +149,106 @@ public:
     Bullet bullet;
 
     void draw(short newX, short newY) {
+        moveCsr(newY - 1, newX - 2);
+        cout << "\\===/";
+
+        moveCsr(newY, newX - 1);
+        cout << "\\X/";
+
+        moveCsr(newY + 1, newX );
+        cout << "=";
+
+
+        x = newX;
+        y = newY;
+    }
+
+    void destroy() {
+        moveCsr(y - 1, x - 2);
+        cout << " *** ";
+
+        moveCsr(y, x - 2);
+        cout << "*****";
+
+        moveCsr(y + 1, x - 2);
+        cout << " *** ";
+
+    }
+
+    void remove() {
+        moveCsr(y - 1, x - 2);
+        cout << "     ";
+
+        moveCsr(y, x - 2);
+        cout << "     ";
+
+        moveCsr(y + 1, x - 2);
+        cout << "     ";
+
+    }
+
+    bool canCollide(short xIn, short yIn) {
+        switch (yIn - y) {
+        case -1:
+            return (((xIn - x) >= -2) && ((xIn - x) <= 3));
+            break;
+        case 0:
+            return (((xIn - x) >= -1) && ((xIn - x) <= 2));
+            break;
+        case 1:
+            return (xIn == x);
+            break;
+        }
+        return false;
+    }
+
+    void animate() {
+        clock_t currentClock = clock();
+
+        if (health <= 0) {
+            if (state == 0) {
+                destroy();
+                state = 1;
+                previousClock = currentClock;
+            }
+        }
+
+        if ((currentClock - previousClock) > 300) {
+            
+            if (state == 1) {
+                remove();
+                state = 2;
+            }
+            
+            previousClock = currentClock;
+        }
+    }
+
+};
+
+
+
+class eStation {
+public:
+    short x = 90;
+    short y = 10;
+    short health = 2;
+    short state = 0;
+
+    clock_t previousClock = clock();
+
+    Bullet bullet;
+
+    void draw(short newX, short newY) {
+
         moveCsr(newY - 1, newX - 3);
-        cout << "\\=====/";
+        cout << "/=====\\";
 
-        moveCsr(newY, newX - 2);
-        cout << "\\ X /";
+        moveCsr(newY, newX - 3);
+        cout << "|X|#|X|";
 
-        moveCsr(newY + 1, newX - 1);
-        cout << "\\ /";
-
-        moveCsr(newY + 2, newX);
-        cout << ".";
+        moveCsr(newY + 1, newX - 3);
+        cout << "\\*/ \\*/";
 
         x = newX;
         y = newY;
@@ -166,19 +256,20 @@ public:
 
     void destroy() {
         moveCsr(y - 1, x - 3);
-        cout << "\\*****/";
+        cout << "/** **\\";
 
         moveCsr(y, x - 3);
-        cout << "*\\***/*";
+        cout << "|*****|";
 
         moveCsr(y + 1, x - 3);
-        cout << "**\\X/**";
+        cout << "\\** **/";
 
         moveCsr(y + 2, x - 3);
         cout << " * * * ";
     }
 
     void remove() {
+
         moveCsr(y - 1, x - 3);
         cout << "       ";
 
@@ -195,7 +286,7 @@ public:
     bool canCollide(short xIn, short yIn) {
         switch (yIn - y) {
         case -1:
-            return (((xIn - x) >= -3) && ((xIn - x) <= 3));
+            return (((xIn - x) >= -2) && ((xIn - x) <= 4));
             break;
         case 0:
             return (((xIn - x) >= -2) && ((xIn - x) <= 2));
@@ -212,29 +303,38 @@ public:
 
     void animate() {
         clock_t currentClock = clock();
-        if ((currentClock - previousClock) > 300) {
-            if (health <= 0) {
-                if (state == 0) {
-                    destroy();
-                    state = 1;
-                }
-                else if (state == 1) {
-                    remove();
-                    state = 2;
-                }
+        if (health <= 0) {
+            if (state == 0) {
+                destroy();
+                state = 1;
+                previousClock = currentClock;
             }
+        }
+
+        if ((currentClock - previousClock) > 300) {
+
+            if (state == 1) {
+                remove();
+                state = 2;
+            }
+
             previousClock = currentClock;
         }
     }
-
 };
-
-eShip eShips[7];
+vector <eShip> eShips;
+vector <eStation> eStations;
 
 bool bulletCollision(short id) {
-    for (int i = 0; i < shipCount; i++) {
+    for (int i = 0; i < eShips.size(); i++) {
         if (eShips[i].canCollide(bullets[id].x, bullets[id].y)) {
             eShips[i].health -= bullets[id].damage;
+            return true;
+        }
+    }
+    for (int i = 0; i < eStations.size(); i++) {
+        if (eStations[i].canCollide(bullets[id].x, bullets[id].y)) {
+            eStations[i].health -= bullets[id].damage;
             return true;
         }
     }
@@ -250,10 +350,16 @@ int main()
 
     drawPlayField();
     player.draw(40);
-
+    
     for (int i = 0; i < 7; i++) {
-        eShips[i].draw(10 + (i * 10) , 10);
+        eShip e;
+        e.draw(10 + (i * 10) , 10);
+        eShips.push_back(e);
     }
+
+    eStation station;
+    station.draw(40,5);
+    eStations.push_back(station);
 
     int destroyShip = 0;
     int selectedShip = 0;
@@ -302,16 +408,31 @@ int main()
                     bullets.erase(bullets.begin() + i);
                 }
                 else {
-                    for (int j = 0; j < shipCount; j++) {
+                    for (int j = 0; j < eShips.size(); j++) {
                         if (eShips[j].canCollide(bullets[i].x, bullets[i].y)) {
+                            
+                            if (eShips[j].state == 2) {
+                                eShips.erase(eShips.begin() + j);
+                            }
+                        }
+                    }
+                    for (int j = 0; j < eStations.size(); j++) {
+                        if (eStations[j].canCollide(bullets[i].x, bullets[i].y)) {
 
+                            if (eStations[j].state == 2) {
+                                eStations.erase(eStations.begin() + j);
+                            }
                         }
                     }
                 }
             }
 
-            for (int i = 0; i < 7; i++) {
+            for (int i = 0; i < eShips.size(); i++) {
                 eShips[i].animate();
+            }
+
+            for (int i = 0; i < eStations.size(); i++) {
+                eStations[i].animate();
             }
 
             previousClock = currentClock;
