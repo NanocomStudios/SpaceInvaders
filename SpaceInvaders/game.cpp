@@ -7,6 +7,7 @@
 
 #include "screenCtrl.h"
 #include "menu.h"
+#include "game.h"
 
 #define PlayerFireRate 200
 #define PlayerMoveSpeed 20
@@ -66,6 +67,7 @@ public:
                 return false;
             }
         }
+        return false;
     }
 
 };
@@ -326,7 +328,7 @@ bool bulletCollision(short id) {
 }
 
 int inp;
-int main()
+void game()
 {
     
     system("cls");
@@ -334,8 +336,6 @@ int main()
 
     drawPlayField();
     player.draw(40);
-    
-    setCursor(false);
 
     for (int i = 0; i < 7; i++) {
         eShip e;
@@ -359,9 +359,9 @@ int main()
     clock_t l3moveClock = clock();
 
 
-    while (0) {
+    while (1) {
         
-        if ((GetKeyState(0x27) == (-128)) || (GetKeyState(0x27) == (-127))) {
+        if ((GetKeyState(0x27) == (-128)) || (GetKeyState(0x27) == (-127))) { // https://learn.microsoft.com/en-us/windows/win32/inputdev/virtual-key-codes
             if ((clock() - playerClock) > PlayerMoveSpeed) {
                 if (player.position < 77) {
                     player.draw(player.position + 1);
@@ -377,6 +377,14 @@ int main()
                 }
                 playerClock = clock();
             }
+        }
+        if ((GetKeyState(0x1b) == (-128)) || (GetKeyState(0x1b) == (-127))) {
+            eShips.erase(eShips.begin(), eShips.end());
+            bullets.erase(bullets.begin(), bullets.end());
+            eStations.erase(eStations.begin(), eStations.end());
+            system("cls");
+            drawMenu();
+            return;
         }
         if ((GetKeyState(0x20) == (-128)) || (GetKeyState(0x20) == (-127))) {
             bool okToFire = false;
@@ -445,6 +453,6 @@ int main()
         }
         
     }
-    mainMenu();
+    
     while (1);
 }

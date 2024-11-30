@@ -19,12 +19,13 @@ void moveCsr(short row, short col) { // https://en.wikipedia.org/wiki/ANSI_escap
     cout << code;
 }
 
-void setForColor(int inp) { // inp - https://en.wikipedia.org/wiki/ANSI_escape_code#8-bit
-    inp = inp + 30;
-    char code[] = "e[30m";
+void consoleColorSet(int inp) { // inp - https://en.wikipedia.org/wiki/ANSI_escape_code#8-bit
+  
+    char code[] = "e[000m";
     code[0] = 27;
-    code[2] = 48 + (inp / 10);
-    code[3] = 48 + (inp % 10);
+    code[2] = 48 + (inp / 100);
+    code[3] = 48 + ((inp % 100) / 10);
+    code[4] = 48 + (inp % 10);
 
     //printf("%s", code);
     cout << code;

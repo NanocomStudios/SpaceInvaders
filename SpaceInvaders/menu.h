@@ -2,7 +2,13 @@
 #ifndef MENU
 #define MENU
 
-void mainMenu();
 void drawPlayField();
+void drawMenu();
+void drawStartGame();
+void drawControlles();
+void drawExit();
+
+void normalColor();
+void invertColor();
 
 #endif
