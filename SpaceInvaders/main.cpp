@@ -5,7 +5,10 @@
 #include <windows.h>
 #include <vector>
 
-#define PlayerFireRate 100
+#include "screenCtrl.h"
+#include "menu.h"
+
+#define PlayerFireRate 200
 #define PlayerMoveSpeed 20
 
 using namespace std;
@@ -15,57 +18,7 @@ const short shipCount = 7;
 
 bool bulletCollision(short id);
 
-void moveCsr(short row, short col) { // https://en.wikipedia.org/wiki/ANSI_escape_code
-    char code[] = "e[000;000H";
-    code[0] = 27;
-    code[2] = 48 + (row / 100);
-    code[3] = 48 + ((row % 100) / 10);
-    code[4] = 48 + (row % 10);
 
-    code[6] = 48 + (col / 100);
-    code[7] = 48 + ((col % 100) / 10);
-    code[8] = 48 + (col % 10);
-
-    //printf("%s", code);
-    cout << code;
-}
-
-void setForColor(int inp) { // inp - https://en.wikipedia.org/wiki/ANSI_escape_code#8-bit
-    inp = inp + 30;
-    char code[] = "e[30m";
-    code[0] = 27;
-    code[2] = 48 + (inp / 10);
-    code[3] = 48 + (inp % 10);
-
-    printf("%s", code);
-}
-
-void setCursor(bool state) {
-    char code[] = "e[?25l";
-    code[0] = 27;
-
-    if (state) {
-        code[5] = 'h';
-    }
-    cout << code;
-}
-
-void drawPlayField() {
-    for (int i = 0; i < 80; i++) {
-        cout << "-";
-    }
-    cout << endl;
-    for (int i = 0; i < 23; i++) {
-        cout << "|";
-        for (int j = 0; j < 78; j++) {
-            cout << " ";
-        }
-        cout << "|" << endl;
-    }
-    for (int i = 0; i < 80; i++) {
-        cout << "-";
-    }
-}
 
 //77 - right
 //75 - left
@@ -156,8 +109,10 @@ public:
     short y = 10;
     short health = 1;
     short state = 0;
+    short direction = 1;
+    short speed = 2;
 
-    clock_t previousClock = clock();
+    clock_t explosionClock = clock();
 
     Bullet bullet;
 
@@ -200,6 +155,11 @@ public:
 
     }
 
+    void moveSide() {
+        remove();
+        draw(x + (direction * speed), y);
+    }
+
     bool canCollide(short xIn, short yIn) {
         switch (yIn - y) {
         case -1:
@@ -222,18 +182,18 @@ public:
             if (state == 0) {
                 destroy();
                 state = 1;
-                previousClock = currentClock;
+                explosionClock = currentClock;
             }
         }
 
-        if ((currentClock - previousClock) > 300) {
+        if ((currentClock - explosionClock) > 300) {
             
             if (state == 1) {
                 remove();
                 state = 2;
             }
             
-            previousClock = currentClock;
+            explosionClock = currentClock;
         }
     }
 
@@ -248,7 +208,10 @@ public:
     short health = 2;
     short state = 0;
 
-    clock_t previousClock = clock();
+    short direction = 1;
+    short speed = 2;
+
+    clock_t explosionClock = clock();
 
     Bullet bullet;
 
@@ -296,16 +259,21 @@ public:
         cout << "       ";
     }
 
+    void moveSide() {
+        remove();
+        draw(x + (direction * speed), y);
+    }
+
     bool canCollide(short xIn, short yIn) {
         switch (yIn - y) {
         case -1:
             return (((xIn - x) >= -2) && ((xIn - x) <= 4));
             break;
         case 0:
-            return (((xIn - x) >= -2) && ((xIn - x) <= 2));
+            return (((xIn - x) >= -2) && ((xIn - x) <= 4));
             break;
         case 1:
-            return (((xIn - x) >= -1) && ((xIn - x) <= 1));
+            return (((xIn - x) >= -2) && ((xIn - x) <= 4));
             break;
         case 2:
             return (xIn == x);
@@ -320,19 +288,22 @@ public:
             if (state == 0) {
                 destroy();
                 state = 1;
-                previousClock = currentClock;
+                explosionClock = currentClock;
             }
         }
 
-        if ((currentClock - previousClock) > 300) {
+        if ((currentClock - explosionClock) > 300) {
 
             if (state == 1) {
                 remove();
                 state = 2;
             }
 
-            previousClock = currentClock;
+            explosionClock = currentClock;
         }
+
+        
+
     }
 };
 vector <eShip> eShips;
@@ -383,8 +354,12 @@ int main()
     clock_t currentClock = clock();
     clock_t bulletClock = clock();
     clock_t playerClock = clock();
+    clock_t l1moveClock = clock();
+    clock_t l2moveClock = clock();
+    clock_t l3moveClock = clock();
 
-    while (1) {
+
+    while (0) {
         
         if ((GetKeyState(0x27) == (-128)) || (GetKeyState(0x27) == (-127))) {
             if ((clock() - playerClock) > PlayerMoveSpeed) {
@@ -468,8 +443,8 @@ int main()
 
             previousClock = currentClock;
         }
+        
     }
-    while (0) {
-        cout << GetKeyState(0x25) << endl;
-    }
+    mainMenu();
+    while (1);
 }
