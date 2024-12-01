@@ -37,7 +37,7 @@ int main() {
                 menuSelection++;
             }
         }
-        else if (inp == 13) {
+        else if ((inp == 13) || (inp == 32)) {
             if (menuSelection == 0) {
                 game();
             }

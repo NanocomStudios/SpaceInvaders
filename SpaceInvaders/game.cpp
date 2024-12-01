@@ -15,7 +15,7 @@
 using namespace std;
 
 short bottom = 24;
-const short shipCount = 7;
+const short shipCount = 14;
 
 bool bulletCollision(short id);
 
@@ -105,17 +105,23 @@ public:
 
 };
 
+struct enemyLayer {
+    short direction;
+    short speed;
+};
+
+enemyLayer eLayers[3] = { {1,1},{-1,2},{1,1} };
+
 class eShip {
 public:
     short x = 90;
     short y = 10;
     short health = 1;
     short state = 0;
-    short direction = 1;
-    short speed = 2;
+    short layer;
 
     clock_t explosionClock = clock();
-
+    clock_t moveClock = clock();
     Bullet bullet;
 
     void draw(short newX, short newY) {
@@ -159,7 +165,7 @@ public:
 
     void moveSide() {
         remove();
-        draw(x + (direction * speed), y);
+        draw(x + (eLayers[layer].direction * eLayers[layer].speed), y);
     }
 
     bool canCollide(short xIn, short yIn) {
@@ -197,6 +203,15 @@ public:
             
             explosionClock = currentClock;
         }
+
+        if ((currentClock - moveClock) > 200) {
+
+            if (state == 0) {
+                moveSide();
+            }
+
+            moveClock = currentClock;
+        }
     }
 
 };
@@ -210,8 +225,7 @@ public:
     short health = 2;
     short state = 0;
 
-    short direction = 1;
-    short speed = 2;
+    short layer;
 
     clock_t explosionClock = clock();
 
@@ -263,7 +277,7 @@ public:
 
     void moveSide() {
         remove();
-        draw(x + (direction * speed), y);
+        draw(x + (eLayers[layer].direction * eLayers[layer].speed), y);
     }
 
     bool canCollide(short xIn, short yIn) {
@@ -340,12 +354,23 @@ void game()
     for (int i = 0; i < 7; i++) {
         eShip e;
         e.draw(10 + (i * 10) , 10);
+        e.layer = 0;
         eShips.push_back(e);
     }
 
-    eStation station;
-    station.draw(40,5);
-    eStations.push_back(station);
+    for (int i = 0; i < 7; i++) {
+        eShip e;
+        e.draw(10 + (i * 10), 15);
+        e.layer = 1;
+        eShips.push_back(e);
+    }
+
+    for (int i = 0; i < 4; i++) {
+        eStation e;
+        e.draw(17 + (i * 15), 5);
+        e.layer = 2;
+        eStations.push_back(e);
+    }
 
     int destroyShip = 0;
     int selectedShip = 0;
@@ -360,7 +385,7 @@ void game()
 
 
     while (1) {
-        
+        Sleep(1);
         if ((GetKeyState(0x27) == (-128)) || (GetKeyState(0x27) == (-127))) { // https://learn.microsoft.com/en-us/windows/win32/inputdev/virtual-key-codes
             if ((clock() - playerClock) > PlayerMoveSpeed) {
                 if (player.position < 77) {
@@ -378,7 +403,7 @@ void game()
                 playerClock = clock();
             }
         }
-        if ((GetKeyState(0x1b) == (-128)) || (GetKeyState(0x1b) == (-127))) {
+        if ((GetKeyState(0x1b) == -127) || (GetKeyState(0x1b) == -128)) {
             eShips.erase(eShips.begin(), eShips.end());
             bullets.erase(bullets.begin(), bullets.end());
             eStations.erase(eStations.begin(), eStations.end());
@@ -451,6 +476,18 @@ void game()
 
             previousClock = currentClock;
         }
+
+        for (int i = 0; i < eShips.size(); i++) {
+            if ((eShips[i].x + 4) >= 79) {
+                eLayers[eShips[i].layer].direction = -1;
+                //eShips[i].moveClock = 0;
+            }
+            else if ((eShips[i].x - 4) <= 1) {
+                eLayers[eShips[i].layer].direction = 1;
+                //eShips[i].moveClock = 0;
+            }
+        }
+
         
     }
     
