@@ -121,7 +121,6 @@ public:
     short layer;
 
     clock_t explosionClock = clock();
-    clock_t moveClock = clock();
     Bullet bullet;
 
     void draw(short newX, short newY) {
@@ -165,7 +164,7 @@ public:
 
     void moveSide() {
         remove();
-        draw(x + (eLayers[layer].direction * eLayers[layer].speed), y);
+        draw(x + (eLayers[layer].direction), y);
     }
 
     bool canCollide(short xIn, short yIn) {
@@ -204,14 +203,7 @@ public:
             explosionClock = currentClock;
         }
 
-        if ((currentClock - moveClock) > 200) {
-
-            if (state == 0) {
-                moveSide();
-            }
-
-            moveClock = currentClock;
-        }
+        
     }
 
 };
@@ -277,7 +269,7 @@ public:
 
     void moveSide() {
         remove();
-        draw(x + (eLayers[layer].direction * eLayers[layer].speed), y);
+        draw(x + eLayers[layer].direction, y);
     }
 
     bool canCollide(short xIn, short yIn) {
@@ -353,14 +345,14 @@ void game()
 
     for (int i = 0; i < 7; i++) {
         eShip e;
-        e.draw(10 + (i * 10) , 10);
+        e.draw(10 + (i * 10) , 15);
         e.layer = 0;
         eShips.push_back(e);
     }
 
     for (int i = 0; i < 7; i++) {
         eShip e;
-        e.draw(10 + (i * 10), 15);
+        e.draw(10 + (i * 10), 10);
         e.layer = 1;
         eShips.push_back(e);
     }
@@ -379,9 +371,9 @@ void game()
     clock_t currentClock = clock();
     clock_t bulletClock = clock();
     clock_t playerClock = clock();
+    clock_t l0moveClock = clock();
     clock_t l1moveClock = clock();
     clock_t l2moveClock = clock();
-    clock_t l3moveClock = clock();
 
 
     while (1) {
@@ -487,6 +479,34 @@ void game()
                 //eShips[i].moveClock = 0;
             }
         }
+
+        if ((currentClock - l0moveClock) > (50 / eLayers[0].speed)) {
+
+            for (int i = 0; i < eShips.size(); i++) {
+                if ((eShips[i].state == 0) && (eShips[i].layer == 0)) {
+                    eShips[i].moveSide();
+                }
+            }
+            l0moveClock = currentClock;
+        }
+        if ((currentClock - l1moveClock) > (50 / eLayers[1].speed)) {
+
+            for (int i = 0; i < eShips.size(); i++) {
+                if ((eShips[i].state == 0) && (eShips[i].layer == 1)) {
+                    eShips[i].moveSide();
+                }
+            }
+            l1moveClock = currentClock;
+        }
+        /*if ((currentClock - l0moveClock) >(100 / eLayers[0].speed)) {
+
+            for (int i = 0; i < eShips.size(); i++) {
+                if ((eShips[i].state == 0) && (eShips[i].layer == 0)) {
+                    eShips[i].moveSide();
+                }
+            }
+            l0moveClock = currentClock;
+        }*/
 
         
     }
