@@ -7,21 +7,23 @@
 #include "menu.h"
 #include "screenCtrl.h"
 #include "game.h"
+#include "audio.h"
 
 using namespace std;
 
 short menuSelection = 0;
 
 int main() {
+    
     setCursor(false);
     system("cls");
-
+    
     drawMenu();
 
     drawStartGame();
     drawControlles();
     drawExit();
-
+    
     int inp;
 
     while (1) {
