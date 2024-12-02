@@ -411,8 +411,8 @@ void game()
                 bulletClock = clock();
             }
 
-            for (Bullet b : bullets) {
-                if ((b.x == player.position) && (b.y == (bottom - 3))) {
+            for (int i = 0; i < bullets.size(); i++) {
+                if ((bullets[i].x == player.position) && (bullets[i].y == (bottom - 3))) {
                     okToFire = false;
                 }
             }
@@ -470,12 +470,22 @@ void game()
         }
 
         for (int i = 0; i < eShips.size(); i++) {
-            if ((eShips[i].x + 4) >= 79) {
+            if ((eShips[i].x + 2) >= 79) {
                 eLayers[eShips[i].layer].direction = -1;
                 //eShips[i].moveClock = 0;
             }
-            else if ((eShips[i].x - 4) <= 1) {
+            else if ((eShips[i].x - 3) <= 1) {
                 eLayers[eShips[i].layer].direction = 1;
+                //eShips[i].moveClock = 0;
+            }
+        }
+        for (int i = 0; i < eStations.size(); i++) {
+            if ((eStations[i].x + 3) >= 79) {
+                eLayers[eStations[i].layer].direction = -1;
+                //eShips[i].moveClock = 0;
+            }
+            else if ((eStations[i].x - 4) <= 1) {
+                eLayers[eStations[i].layer].direction = 1;
                 //eShips[i].moveClock = 0;
             }
         }
@@ -498,15 +508,15 @@ void game()
             }
             l1moveClock = currentClock;
         }
-        /*if ((currentClock - l0moveClock) >(100 / eLayers[0].speed)) {
+        if ((currentClock - l2moveClock) >(300)) {
 
-            for (int i = 0; i < eShips.size(); i++) {
-                if ((eShips[i].state == 0) && (eShips[i].layer == 0)) {
-                    eShips[i].moveSide();
+            for (int i = 0; i < eStations.size(); i++) {
+                if ((eStations[i].state == 0) && (eStations[i].layer == 2)) {
+                    eStations[i].moveSide();
                 }
             }
-            l0moveClock = currentClock;
-        }*/
+            l2moveClock = currentClock;
+        }
 
         
     }
