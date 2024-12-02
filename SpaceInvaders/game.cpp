@@ -4,6 +4,7 @@
 #include <stdlib.h>
 #include <windows.h>
 #include <vector>
+#include <thread>
 
 #include "screenCtrl.h"
 #include "menu.h"
@@ -19,8 +20,6 @@ const short shipCount = 14;
 
 bool bulletCollision(short id);
 
-
-
 //77 - right
 //75 - left
 //72 - up
@@ -32,6 +31,7 @@ public:
     short y;
     short damage = 1;
     short state = 0;
+    short direction = -1;
     clock_t previousClock;
 
     void draw(short xIn, short yIn) {
@@ -73,6 +73,7 @@ public:
 };
 
 vector <Bullet> bullets;
+vector <Bullet> eBullets;
 
 class Player {
 public: 
@@ -121,7 +122,7 @@ public:
     short layer;
 
     clock_t explosionClock = clock();
-    Bullet bullet;
+    clock_t fireClock = clock();
 
     void draw(short newX, short newY) {
         moveCsr(newY - 1, newX - 2);
@@ -339,7 +340,7 @@ void game()
     
     system("cls");
     Player player;
-
+    
     drawPlayField();
     player.draw(40);
 
