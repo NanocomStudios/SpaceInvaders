@@ -13,16 +13,15 @@ void playGameAudio() {
 	//mciSendString("stop mp3", NULL, 0, NULL);
 }
 
-void loadBlasterAudio() {
-	mciSendString("open \"blaster.mp3\" type mpegvideo alias blaster", NULL, 0, NULL);
-}
-
 void playBlasterAudio() {
 	mciSendString("open \"blaster.mp3\" type mpegvideo alias blaster", NULL, 0, NULL);
-	mciSendString("play blaster from 0", NULL, 0, NULL);
+	mciSendString("play blaster from 0 wait", NULL, 0, NULL);
+	mciSendString("close blaster", NULL,0,0);
 }
 
 void playExplosionAudio() {
 	mciSendString("open \"explosion.mp3\" type mpegvideo alias explosion", NULL, 0, NULL);
-	mciSendString("play explosion from 0", NULL, 0, NULL);
+	mciSendString("play explosion from 0 wait", NULL, 0, NULL);
+	mciSendString("close explosion", NULL, 0, 0);
+	
 }

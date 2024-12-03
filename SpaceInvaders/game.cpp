@@ -40,7 +40,9 @@ public:
         y = yIn;
 
         moveCsr(y,x - 1);
+        consoleColorSet(96);
         cout << "*";
+        consoleColorSet(37);
 
         previousClock = clock();
     }
@@ -55,7 +57,9 @@ public:
         if (state == 0) {
 
             moveCsr(y - 1, x - 1);
+            consoleColorSet(96);
             cout << "*";
+            consoleColorSet(37);
             y = y - 1;
 
             if (y == 2) {
@@ -87,6 +91,7 @@ public:
     }
 
     void draw(int pos) {
+        consoleColorSet(92);
         moveCsr(bottom - 2, position - 4);
         cout << "       ";
         moveCsr(bottom - 2, pos - 1);
@@ -101,7 +106,7 @@ public:
         cout << "       ";
         moveCsr(bottom, pos - 4);
         cout << "|__X__|";
-
+        consoleColorSet(37);
         position = pos;
     }
 
@@ -126,6 +131,7 @@ public:
     clock_t fireClock = clock();
 
     void draw(short newX, short newY) {
+        consoleColorSet(95);
         moveCsr(newY - 1, newX - 2);
         cout << "\\===/";
 
@@ -134,7 +140,7 @@ public:
 
         moveCsr(newY + 1, newX );
         cout << "=";
-
+        consoleColorSet(37);
 
         x = newX;
         y = newY;
@@ -143,7 +149,8 @@ public:
     void destroy() {
         thread explosion(playExplosionAudio);
         explosion.detach();
-
+        
+        consoleColorSet(33);
         moveCsr(y - 1, x - 2);
         cout << " *** ";
 
@@ -152,7 +159,7 @@ public:
 
         moveCsr(y + 1, x - 2);
         cout << " *** ";
-
+        consoleColorSet(37);
     }
 
     void remove() {
@@ -229,7 +236,13 @@ public:
     Bullet bullet;
 
     void draw(short newX, short newY) {
-
+        if (health == 2) {
+            consoleColorSet(94);
+        }
+        else if (health == 1) {
+            consoleColorSet(91);
+        }
+        
         moveCsr(newY - 1, newX - 3);
         cout << "/=====\\";
 
@@ -238,7 +251,7 @@ public:
 
         moveCsr(newY + 1, newX - 3);
         cout << "\\*/ \\*/";
-
+        consoleColorSet(37);
         x = newX;
         y = newY;
     }
@@ -246,7 +259,7 @@ public:
     void destroy() {
         thread explosion(playExplosionAudio);
         explosion.detach();
-
+        consoleColorSet(33);
         moveCsr(y - 1, x - 3);
         cout << "/** **\\";
 
@@ -258,6 +271,7 @@ public:
 
         moveCsr(y + 2, x - 3);
         cout << " * * * ";
+        consoleColorSet(37);
     }
 
     void remove() {
@@ -341,10 +355,6 @@ bool bulletCollision(short id) {
     return false;
 }
 
-void threadTest() {
-    Sleep(100);
-}
-
 int inp;
 void game()
 {
@@ -352,7 +362,10 @@ void game()
     system("cls");
     Player player;
 
+    consoleColorSet(93);
     drawPlayField();
+    consoleColorSet(37);
+
     player.draw(40);
 
     for (int i = 0; i < 7; i++) {

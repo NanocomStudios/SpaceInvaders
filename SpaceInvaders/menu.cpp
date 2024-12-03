@@ -60,8 +60,9 @@ int main() {
 }
 
 void drawMenu() {
+    consoleColorSet(94);
     drawPlayField();
-
+    consoleColorSet(92);
     moveCsr(2, 5);
     cout << "/===   |====\\      /=\\      /====  /====";
     moveCsr(3, 5);
@@ -81,6 +82,7 @@ void drawMenu() {
     cout << "  |   |  \\ |   \\  /    /=====\\   |   |  |     | \\       \\";
     moveCsr(10, 20);
     cout << "===== |   \\|    \\/    /       \\  |===/  |===  |  \\   ===/";
+    consoleColorSet(37);
 }
 
 void drawPlayField() {
@@ -106,7 +108,7 @@ void normalColor() {
 }
 
 void invertColor() {
-    consoleColorSet(47);
+    consoleColorSet(43);
     consoleColorSet(30);
 }
 
