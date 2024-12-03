@@ -5,6 +5,13 @@
 #pragma comment(lib, "Winmm.lib")
 
 using namespace std;
+
+LPCWSTR toLPCWSTR(string str) {
+	wstring temp = wstring(str.begin(), str.end());
+	LPCWSTR wideString = temp.c_str();
+	return wideString;
+}
+
 //https://stackoverflow.com/questions/22253074/how-to-play-or-open-mp3-or-wav-sound-file-in-c-program
 void playGameAudio() {
 	//mciSendString("open \"song.mp3\" type mpegvideo alias mp3", NULL, 0, NULL);
@@ -25,3 +32,4 @@ void playExplosionAudio() {
 	mciSendString("close explosion", NULL, 0, 0);
 	
 }
+
