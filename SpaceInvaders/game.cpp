@@ -141,6 +141,9 @@ public:
     }
 
     void destroy() {
+        thread explosion(playExplosionAudio);
+        explosion.detach();
+
         moveCsr(y - 1, x - 2);
         cout << " *** ";
 
@@ -241,6 +244,9 @@ public:
     }
 
     void destroy() {
+        thread explosion(playExplosionAudio);
+        explosion.detach();
+
         moveCsr(y - 1, x - 3);
         cout << "/** **\\";
 
