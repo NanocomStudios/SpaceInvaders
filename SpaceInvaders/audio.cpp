@@ -30,6 +30,5 @@ void playExplosionAudio() {
 	mciSendString("open \"explosion.mp3\" type mpegvideo alias explosion", NULL, 0, NULL);
 	mciSendString("play explosion from 0 wait", NULL, 0, NULL);
 	mciSendString("close explosion", NULL, 0, 0);
-	
 }
 

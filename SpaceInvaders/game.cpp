@@ -21,10 +21,6 @@ const short shipCount = 14;
 
 bool bulletCollision(short id);
 
-//77 - right
-//75 - left
-//72 - up
-//80 - down
 
 class Bullet {
 public:
@@ -56,11 +52,11 @@ public:
 
         if (state == 0) {
 
-            moveCsr(y - 1, x - 1);
+            moveCsr(y + direction, x - 1);
             consoleColorSet(96);
             cout << "*";
             consoleColorSet(37);
-            y = y - 1;
+            y = y + direction;
 
             if (y == 2) {
                 moveCsr(y, x - 1);
@@ -349,6 +345,7 @@ bool bulletCollision(short id) {
     for (int i = 0; i < eStations.size(); i++) {
         if ((eStations[i].canCollide(bullets[id].x, bullets[id].y)) && (eStations[i].state == 0)) {
             eStations[i].health -= bullets[id].damage;
+            eStations[i].draw(eStations[i].x, eStations[i].y);
             return true;
         }
     }

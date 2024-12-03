@@ -30,6 +30,11 @@ int main() {
     while (1) {
         inp = _getch();
 
+        //77 - right
+        //75 - left
+        //72 - up
+        //80 - down
+
         if (inp == 72) {
             if (menuSelection > 0) {
                 menuSelection--;
