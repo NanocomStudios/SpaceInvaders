@@ -3,16 +3,17 @@
 #include <stdlib.h>
 #include <windows.h>
 #include <conio.h>
+#include <thread>
+#include <vector>
 
 #include "menu.h"
 #include "screenCtrl.h"
 #include "game.h"
-#include "audio.h"
 
 using namespace std;
 
 short menuSelection = 0;
-
+vector <thread> song;
 int main() {
     
     setCursor(false);
@@ -23,7 +24,7 @@ int main() {
     drawStartGame();
     drawControlles();
     drawExit();
-    
+
     int inp;
 
     while (1) {

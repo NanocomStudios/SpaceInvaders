@@ -9,6 +9,7 @@
 #include "screenCtrl.h"
 #include "menu.h"
 #include "game.h"
+#include "audio.h"
 
 #define PlayerFireRate 200
 #define PlayerMoveSpeed 20
@@ -334,13 +335,17 @@ bool bulletCollision(short id) {
     return false;
 }
 
+void threadTest() {
+    Sleep(100);
+}
+
 int inp;
 void game()
 {
     
     system("cls");
     Player player;
-    
+
     drawPlayField();
     player.draw(40);
 
@@ -376,9 +381,10 @@ void game()
     clock_t l1moveClock = clock();
     clock_t l2moveClock = clock();
 
-
+    
     while (1) {
         Sleep(1);
+        
         if ((GetKeyState(0x27) == (-128)) || (GetKeyState(0x27) == (-127))) { // https://learn.microsoft.com/en-us/windows/win32/inputdev/virtual-key-codes
             if ((clock() - playerClock) > PlayerMoveSpeed) {
                 if (player.position < 77) {
@@ -419,6 +425,8 @@ void game()
             }
 
             if (okToFire) {
+                thread blaster(playBlasterAudio);
+                blaster.detach();
                 Bullet b;
                 b.draw(player.position, bottom - 3);
                 bullets.push_back(b);
